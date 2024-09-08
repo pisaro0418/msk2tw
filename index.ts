@@ -4,7 +4,7 @@ import {tweet, uploadMediaFromURL} from "./twitter.ts";
 
 const timelog = (text: string, content?: string) => {
   console.log(
-    `${new Date().toLocaleString("ja-JP", {timeZone: "JST"})}: ${text}\n${
+    `${new Date().toLocaleString("ja-JP", { timeZone: "JST" })}: ${text}\n${
       content?.replace(/^/gm, "> ") ?? ""
     }`,
   );
@@ -26,7 +26,7 @@ app.post("/", async (c) => {
     return c.text(msg, 403);
   }
   const payload: Payload = await c.req.json();
-  const {text, cw, visibility, localOnly, files} = payload.body.note;
+  const { text, cw, visibility, localOnly, files } = payload.body.note;
   if (localOnly) {
     const msg = `post visibility: "local only"`;
     timelog(msg);
@@ -80,7 +80,7 @@ app.post("/", async (c) => {
     return c.text(msg, 403);
   }
   const res = await tweet(tweetContent, authToken, ct0, mediaIds);
-  timelog("Tweet res", JSON.stringify(res, null, 2));
+  timelog("Tweet res", JSON.stringify(await res.json(), null, 2));
   if (res.status === 200) {
     const msg = "successfully tweeted";
     timelog(msg, tweetContent);
