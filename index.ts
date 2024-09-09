@@ -1,6 +1,6 @@
-import {Hono} from "hono/mod.ts";
-import {Payload} from "./types.ts";
-import {tweet, uploadMediaFromURL} from "./twitter.ts";
+import { Hono } from "hono";
+import { Payload } from "./types.ts";
+import { tweet, uploadMediaFromURL } from "./twitter.ts";
 
 const timelog = (text: string, content?: string) => {
   console.log(
