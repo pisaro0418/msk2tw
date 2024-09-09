@@ -1,4 +1,4 @@
-import { Hono } from "hono/mod.ts";
+import { Hono } from "hono";
 import { Payload } from "./types.ts";
 import { tweet, uploadMediaFromURL } from "./twitter.ts";
 
@@ -79,14 +79,26 @@ app.post("/", async (c) => {
     timelog(msg);
     return c.text(msg, 403);
   }
+  let error: string | null = null;
   const res = await tweet(tweetContent, authToken, ct0, mediaIds);
   if (res.status === 200) {
-    const msg = "successfully tweeted";
-    timelog(msg, tweetContent);
-    return c.text(msg, 200);
+    const resJson = await res.json();
+    if (
+      Object.hasOwn(resJson, "data") && Object.keys(resJson.data).length > 0 &&
+      typeof resJson.data.create_tweet.tweet_results.result.rest_id === "string"
+    ) {
+      const msg = "successfully tweeted";
+      timelog(msg, tweetContent);
+      return c.text(msg, 200);
+    }
+
+    error = JSON.stringify(resJson, null, 2);
   }
+
   const msg = "error while tweeting";
   timelog(msg, tweetContent);
+  timelog("Status", res.status.toString());
+  if (error !== null) timelog("Error", error);
   return c.text(msg, 403);
 });
 

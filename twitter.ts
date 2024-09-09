@@ -1,5 +1,5 @@
-import { match } from "https://deno.land/x/pattern_match@1.0.0-beta.3/mod.ts";
 import { CreateTweetRequest } from "./types.ts";
+import { match } from "ts-pattern";
 
 export const tweet = async (
   text: string,
@@ -72,17 +72,15 @@ export const uploadMediaFromURL = async (
 
   const res = await fetch(mediaURL);
   const blob = await res.blob();
-  const mediaType = match(type, {
-    "image/jpeg": () => "tweet_image",
-    "image/png": () => "tweet_image",
-    "image/webp": () => "tweet_image",
-    "image/gif": () => "tweet_gif",
-    "video/mp4": () => "tweet_video",
-
-    [match._]: () => {
-      throw new Error(`Unsupported media type: ${type}`);
-    },
-  });
+  const mediaType = match(type).with(
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    () => "tweet_image",
+  ).with("image_gif", () => "tweet_gif").with("video/mp4", () => "tweet_video")
+    .otherwise((value) => {
+      throw new Error(`Unsupported media type: ${value}`);
+    });
 
   const initURL =
     `https://upload.twitter.com/i/media/upload.json?command=INIT&total_bytes=${blob.size}&media_type=${
