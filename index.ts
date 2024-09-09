@@ -80,12 +80,18 @@ app.post("/", async (c) => {
     return c.text(msg, 403);
   }
   const res = await tweet(tweetContent, authToken, ct0, mediaIds);
-  timelog("Tweet res", JSON.stringify(await res.json(), null, 2));
   if (res.status === 200) {
-    const msg = "successfully tweeted";
-    timelog(msg, tweetContent);
-    return c.text(msg, 200);
+    const resJson = await res.json();
+    if (
+      Object.hasOwn(resJson, "data") && Object.keys(resJson.data).length > 0 &&
+      typeof resJson.data.create_tweet.tweet_results.result.rest_id === "string"
+    ) {
+      const msg = "successfully tweeted";
+      timelog(msg, tweetContent);
+      return c.text(msg, 200);
+    }
   }
+
   const msg = "error while tweeting";
   timelog(msg, tweetContent);
   return c.text(msg, 403);
